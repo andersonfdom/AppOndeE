@@ -1,1 +1,0 @@
-D:\Projetos\AppOndeE\AppOndeE.Mobile.Users\AppOndeE.Mobile.Users.csproj;x64

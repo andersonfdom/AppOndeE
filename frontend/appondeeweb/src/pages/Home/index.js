@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
+import { toast } from "react-toastify";
 
 function Home() {
   const [dadosHome, setDadosHome] = useState([]);
+
+  toast.success("Dados carregados com sucesso!");
 
   useEffect(() => {
     function loadHome() {
       api.get("Home").then((response) => {
         setDadosHome(response.data);
       });
+
     }
 
     loadHome();
