@@ -1,0 +1,155 @@
+﻿
+@{
+    ViewData["Title"] = "ConfiguracoesSistema";
+}
+<script>
+    $(function(){
+        $('#mensagemAlertaCad').hide();
+        $('#mensagemSucessoCad').hide();
+
+        $.ajax({
+            type: "POST",
+            url: "/Home/CarregarDadosConfiguracoesCliente?id=" + $('#idCliente').val(),
+            datatype: "JSON",
+            contentType: "application/json; charset=utf-8",
+            success: function (jsonResult) {
+                document.getElementById('nomeFantasia').value = jsonResult.nomeFantasia;
+                document.getElementById('razaoSocial').value = jsonResult.razaoSocial;
+                document.getElementById('cnpj').value = jsonResult.cnpj;
+                document.getElementById('nomeResponsavel').value = jsonResult.nomeResponsavel;
+                document.getElementById('telefone').value = jsonResult.telefone;
+                document.getElementById('cep').value = jsonResult.cep;
+                document.getElementById('logradouro').value = jsonResult.logradouro;
+                document.getElementById('complemento').value = jsonResult.complemento;
+                document.getElementById('bairro').value = jsonResult.bairro;
+                document.getElementById('cidade').value = jsonResult.cidade;
+                document.getElementById('estado').value = jsonResult.estado;
+                document.getElementById('email').value = jsonResult.email;
+            }
+        });
+
+        $('#btnSalvar').click(function(){
+            var dados = {
+                Id: document.getElementById('idCliente').value,
+                NomeFantasia: document.getElementById('nomeFantasia').value,
+                RazaoSocial: document.getElementById('razaoSocial').value,
+                Cnpj: document.getElementById('cnpj').value,
+                NomeResponsavel: document.getElementById('nomeResponsavel').value,
+                Telefone: document.getElementById('telefone').value,
+                Cep: document.getElementById('cep').value,
+                Logradouro: document.getElementById('logradouro').value,
+                Complemento: document.getElementById('complemento').value,
+                Bairro: document.getElementById('bairro').value,
+                Cidade: document.getElementById('cidade').value,
+                Estado: document.getElementById('estado').value,
+                Email: document.getElementById('email').value
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/Home/SalvarDadosConfiguracoesCliente",
+                datatype: "JSON",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(dados),
+                success: function (jsonResult) {
+                    if (jsonResult.includes('sucesso')) {
+                        $('#mensagemSucessoCad').show();
+                        $('#mensagemSucessoCad').html(jsonResult);
+                        window.setTimeout(function(){
+                            window.location.href = '/Home/Index';
+                        },3500);
+                    }else{
+                        $('#mensagemAlertaCad').hide();
+                        $('#mensagemAlertaCad').html(jsonResult);
+                    }
+                }
+            });
+        });
+    });
+</script>
+<div class="form-group">
+    <div class="row">
+        <h2>Configurações do Sistema</h2>
+    </div>
+    <div class="row" style="padding-left:15%">
+        <div class="col-md-12">
+            <div id="mensagemAlertaCad" class="alert alert-danger">
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row" style="padding-left:15%">
+        <div class="col-md-12">
+            <div id="mensagemSucessoCad" class="alert alert-success">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <label for="nomeFantasia">Nome Fantasia</label>
+            <input type="text" class="form-control" id="nomeFantasia" />
+        </div>
+        <div class="col-md-6">
+            <label for="razaoSocial">Razão Social</label>
+            <input type="text" class="form-control" id="razaoSocial" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <label for="cnpj">Cnpj</label>
+            <input type="text" class="form-control" id="cnpj" />
+        </div>
+        <div class="col-md-6">
+            <label for="nomeResponsavel">Nome do Responsável</label>
+            <input type="text" class="form-control" id="nomeResponsavel" />
+        </div>
+        <div class="col-md-3">
+            <label for="telefone">Telefone</label>
+            <input type="text" class="form-control" id="telefone" onkeypress="mask(this, mphone);" onblur="mask(this, mphone);" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-5">
+            <label for="email">E-mail</label>
+            <input type="email" class="form-control" id="email" />
+        </div>
+        <div class="col-md-2">
+            <label for="cep">Cep</label>
+            <input type="text" class="form-control" id="cep" />
+        </div>
+        <div class="col-md-5">
+            <label for="logradouro">Logradouro</label>
+            <input type="text" class="form-control" id="logradouro" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <label for="complemento">Complemento</label>
+            <input type="text" class="form-control" id="complemento" />
+        </div>
+        <div class="col-md-6">
+            <label for="bairro">Bairro</label>
+            <input type="text" class="form-control" id="bairro" />
+        </div>
+        <div class="row" style="padding-left:1.5%">
+            <div class="col-md-6">
+                <label for="cidade">Cidade</label>
+                <input type="text" class="form-control" id="cidade" />
+            </div>
+            <div class="col-md-6">
+                <label for="estado">Estado</label>
+                <input type="text" class="form-control" id="estado" />
+            </div>
+        </div>
+        <br />
+        <div class="row" style="padding-left:1.5%">
+            <div class="col-md-6">
+                <input type="button" id="btnSalvar" value="Salvar" class="btn btn-primary btn-block" />
+            </div>
+            <div class="col-md-6">
+                <input type="button" id="btnEntrar" value="Cancelar" class="btn btn-danger btn-block" onclick="window.location.href='/Home/Index'" />
+            </div>
+        </div>
+    </div>
+</div>
+

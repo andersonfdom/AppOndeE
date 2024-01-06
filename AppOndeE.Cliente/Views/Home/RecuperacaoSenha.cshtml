@@ -1,0 +1,186 @@
+﻿@{
+    Layout = null;
+}
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recuperação de Senha</title>
+
+    <!-- BOOTSTRAP STYLES-->
+    <link href="~/assets/css/bootstrap.css" rel="stylesheet" />
+    <!-- FONTAWESOME STYLES-->
+    <link href="~/assets/css/font-awesome.css" rel="stylesheet" />
+    <!--CUSTOM BASIC STYLES-->
+    <link href="~/assets/css/basic.css" rel="stylesheet" />
+    <!--CUSTOM MAIN STYLES-->
+    <link href="~/assets/css/custom.css" rel="stylesheet" />
+    <!-- GOOGLE FONTS-->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
+
+    <!-- /. FOOTER  -->
+    <!-- SCRIPTS -AT THE BOTOM TO REDUCE THE LOAD TIME-->
+    <!-- JQUERY SCRIPTS -->
+    <script src="~/assets/js/jquery-1.10.2.js"></script>
+    <!-- BOOTSTRAP SCRIPTS -->
+    <script src="~/assets/js/bootstrap.js"></script>
+    <!-- METISMENU SCRIPTS -->
+    <script src="~/assets/js/jquery.metisMenu.js"></script>
+    <!-- CUSTOM SCRIPTS -->
+    <script src="~/assets/js/custom.js"></script>
+    <script src="~/assets/js/jquery.mask.js"></script>
+    <script src="~/assets/js/CustomApp.js"></script>
+    <script>
+        $(function () {
+            var dadosCode = getParameterByName('code') == null ? '' : getParameterByName('code');
+            $('#mensagemAlertaCad').hide();
+            $('#mensagemSucessoCad').hide();
+            $("#btnAlterar").prop("disabled", true);
+
+            $("#senha").keyup(function () {
+                var pontoSenha = verificaForcaSenha('senha', 'statusSenha');
+                
+                if (pontoSenha > 2) {
+                    $("#btnAlterar").prop("disabled", false);
+                }else{
+                    $("#btnAlterar").prop("disabled", true);
+                }
+
+                var pontoConfirmSenha = validarConfirmacaoSenha('senha', 'confirmarSenha', 'statusConfirmarSenha');
+
+                if (pontoConfirmSenha > 0) {
+                    $("#btnAlterar").prop("disabled", false);
+                } else {
+                    $("#btnAlterar").prop("disabled", true);
+                }
+            });
+
+            $("#confirmarSenha").keyup(function () {
+                var pontoSenha = verificaForcaSenha('senha', 'statusSenha');
+
+                if (pontoSenha > 2) {
+                    $("#btnAlterar").prop("disabled", false);
+                } else {
+                    $("#btnAlterar").prop("disabled", true);
+                }
+
+                var pontoConfirmSenha = validarConfirmacaoSenha('senha', 'confirmarSenha', 'statusConfirmarSenha');
+
+                if (pontoConfirmSenha > 0) {
+                    $("#btnAlterar").prop("disabled", false);
+                } else {
+                    $("#btnAlterar").prop("disabled", true);
+                }
+            });
+
+            $.ajax({
+                type: "POST",
+                url: "/Home/DadosRecuperacaoSenha?code=" + dadosCode,
+                datatype: "JSON",
+                contentType: "application/json; charset=utf-8",
+                success: function (jsonResult) {
+                    console.log(jsonResult.id);
+                    console.log(jsonResult.idCliente);
+                    $('#IdUsuCliente').val(jsonResult.id);
+                    $('#IdCliente').val(jsonResult.idCliente);
+                }
+            });
+
+            $('#btnAlterar').click(function(){
+                if ($('#senha').val() !== $('#confirmarSenha').val()) {
+                    $('#mensagemAlertaCad').show();
+                    $('#mensagemAlertaCad').html('Senhas não conferem');
+
+                    window.setTimeout(function () {
+                        $('#mensagemAlertaCad').hide();
+                        $('#mensagemAlertaCad').html('');
+                    }, 3500);
+
+                    return false;
+                } else {
+                    var dados = {
+                        Id: $('#IdUsuCliente').val(),
+                        IdCliente: $('#IdCliente').val(),
+                        Senha: $('#senha').val()
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/Home/AlterarSenha",
+                        datatype: "JSON",
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(dados),
+                        success: function (jsonResult) {
+                            if (jsonResult.includes('sucesso')) {
+                                $('#mensagemAlertaCad').hide();
+                                $('#mensagemSucessoCad').show();
+                                $('#mensagemSucessoCad').html(jsonResult);
+                            } else {
+                                $('#mensagemAlertaCad').show();
+                                $('#mensagemAlertaCad').html(jsonResult);
+                                $('#mensagemSucessoCad').hide();
+                            }
+
+                            window.setTimeout(function(){
+                                window.location.href = "/Home/Login";
+                            },3500);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <form id="frmCadastro">
+        <div id="wrapper">
+            <img src="~/assets/img/logo.jpg" class="img-thumbnail" style="width: 200px; height: 200px" />
+            <h2 style="padding-left: 33%; color: white">Recuperação de Senha</h2>
+        </div>
+        <div class="form-group">
+            <input type="hidden" id="IdCliente" value="0" />
+            <input type="hidden" id="IdUsuCliente" value="0" />
+            <div class="row" style="padding-left:15%">
+                <div class="col-md-12">
+                    <div id="mensagemAlertaCad" class="alert alert-danger">
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="row" style="padding-left:15%">
+                <div class="col-md-12">
+                    <div id="mensagemSucessoCad" class="alert alert-success">
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding-left: 15%">
+                <div class="col-md-12">
+                    <label for="senha">Senha</label>&nbsp<span id="statusSenha"></span>
+
+                    <input type="password" class="form-control" id="senha"  />
+                </div>
+            </div>
+            <div class="row" style="padding-left: 15%">
+                <div class="col-md-12">
+                    <label for="confirmarSenha">Confirmar Senha</label>&nbsp<span id="statusConfirmarSenha"></span>
+                    <input type="password" class="form-control" id="confirmarSenha" />
+                </div>
+            </div>
+            <br />
+            <div class="row" style="padding-left: 15%">
+                <div class="row" style="padding-left: 1.5%">
+                    <div class="col-md-6">
+                        <input type="button" id="btnAlterar" value="Alterar" class="btn btn-primary btn-block" />
+                    </div>
+                    <div class="col-md-6">
+                        <input type="button" id="btnCancelar" value="Cancelar" onclick="window.location.href = '/Home/Login'" class="btn btn-danger btn-block" />
+                    </div>
+                </div>
+            </div>
+    </form>
+</body>
+</html>

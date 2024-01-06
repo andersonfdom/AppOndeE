@@ -1,0 +1,169 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>App Onde É</title>
+
+    <!-- BOOTSTRAP STYLES-->
+    <link href="~/assets/css/bootstrap.css" rel="stylesheet" />
+    <!-- FONTAWESOME STYLES-->
+    <link href="~/assets/css/font-awesome.css" rel="stylesheet" />
+    <!-- GOOGLE FONTS-->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
+    <!-- /. FOOTER  -->
+    <!-- SCRIPTS -AT THE BOTOM TO REDUCE THE LOAD TIME-->
+    <!-- JQUERY SCRIPTS -->
+    <script src="~/assets/js/jquery-1.10.2.js"></script>
+    <!-- BOOTSTRAP SCRIPTS -->
+    <script src="~/assets/js/bootstrap.js"></script>
+    <!-- METISMENU SCRIPTS -->
+    <script src="~/assets/js/jquery.metisMenu.js"></script>
+    <!-- CUSTOM SCRIPTS -->
+    <script src="~/assets/js/custom.js"></script>
+    <script src="~/assets/js/jquery.mask.js"></script>
+    <script>
+        $(function () {
+            $('#mensagemAlerta').hide();
+            $('#mensagemAlertaRecSenha').hide();
+            $('#mensagemSucessoRecSenha').hide();
+
+            $('#btnEntrar').click(function () {
+                var dados = {
+                    Login: $('#email').val(),
+                    Senha: $('#senha').val(),
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Home/LoginValido",
+                    datatype: "JSON",
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(dados),
+                    success: function (jsonResult) {
+                        if (jsonResult !== 'sucesso') {
+                            $('#mensagemAlerta').show();
+                            $('#mensagemAlerta').html("Login e/ou Senha inválidos.");
+                            window.setTimeout(function(){
+                                $('#mensagemAlerta').html("");
+                                $('#mensagemAlerta').hide();
+                                $('#email').val('');
+                                $('#senha').val('');
+                                $('#email').focus();
+                            },3500);
+                        }else{
+                            $('#mensagemAlerta').html("");
+                            $('#mensagemAlerta').hide();
+
+                            window.location.href = "/Home/Index";
+                        }       
+                    }
+                });
+            });
+
+            $('#btnRecuperarSenha').click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/Home/RecuperarEmailSenha?email=" + $('#emailRecSenha').val(),
+                    datatype: "JSON",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (jsonResult) {
+                        if (jsonResult.includes('enviado')) {
+                            $('#mensagemAlertaRecSenha').hide();
+                            $('#mensagemSucessoRecSenha').show();
+                            $('#mensagemSucessoRecSenha').html(jsonResult);
+                        }else{
+                            $('#mensagemAlertaRecSenha').show();
+                            $('#mensagemAlertaRecSenha').html(jsonResult);
+                            $('#mensagemSucessoRecSenha').hide();
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="row text-center " style="padding-top: 100px;">
+            <div class="col-md-12">
+                <img class="img-rounded" src="~/assets/img/logo.jpg" style="width: 200px; height: 200px" />
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">
+                <div class="panel-body">
+                    <form role="form">
+                        <hr />
+                        <h3>Acesso Restrito - Cliente</h3>
+                        <div id="mensagemAlerta" class="alert alert-danger" >
+                        </div>
+                        <!-- Modal -->
+                        <div class="modal fade" id="mdRecSenha" role="dialog">
+                            <div class="modal-dialog">
+
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                        <h2>Recuperação de Senha</h2>
+                                        <main>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div id="mensagemAlertaRecSenha" class="alert alert-danger">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <br />
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div id="mensagemSucessoRecSenha" class="alert alert-success">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <label for="email">E-mail Recuperação Senha:</label>
+                                                    <input type="email" class="form-control" id="emailRecSenha" />
+                                                </div>
+                                            </div>
+                                            <br />
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <input type="button" id="btnRecuperarSenha" value="Enviar" class="btn btn-success btn-block" />
+                                                </div>
+                                            </div>
+                                        </main>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <br />
+                        <div class="form-group input-group">
+                            <span class="input-group-addon"><i class="fa fa-tag"></i></span>
+                            <input type="email" id="email" class="form-control" placeholder="E-mail" />
+                        </div>
+                        <div class="form-group input-group">
+                            <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                            <input type="password" id="senha" class="form-control" placeholder="Senha" />
+                        </div>
+                        <div class="form-group">
+                            <span class="pull-left">
+                                <a id="esqueceuSenha" href="#" onclick="$('#mdRecSenha').modal('show');$('#emailRecSenha').focus();">Esqueceu a senha ? </a>
+                                &nbsp&nbsp&nbsp<a id="meuPrimeiroAcesso" href="@Url.Action("Cadastro","Home")">Criar Conta</a>
+                            </span>
+                        </div>
+                        <input type="button" id="btnEntrar" value="Entrar" class="btn btn-primary btn-block" />
+                        <br />
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
